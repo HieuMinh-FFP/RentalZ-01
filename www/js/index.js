@@ -38,6 +38,7 @@ function onDeviceReady() {
         var query = `CREATE TABLE IF NOT EXISTS Activity (Id INTEGER PRIMARY KEY AUTOINCREMENT,
                                                         REPORTER TEXT UNIQUE NOT NULL,                                                                                            
                                                         NAME TEXT UNIQUE NOT NULL,
+                                                        location TEXT UNIQUE NOT NULL
                                                         City INTEGER NOT NULL,
                                                         District INTEGER NOT NULL,
                                                         Ward INTEGER NOT NULL,
@@ -118,6 +119,7 @@ function onDeviceReady() {
         var info = {
             'REPORTER': $(`${form} #reporter`).val(),
             'NAME': $(`${form} #activity-name`).val(),
+            'location': $(`${form} #location`).val(),
             'City': $(`${form} #city`).val(),
             'District': $(`${form} #district`).val(),
             'Ward': $(`${form} #ward`).val(),
@@ -133,6 +135,7 @@ function onDeviceReady() {
         var info = {
             'REPORTER': $(`${form} #reporter`).val(),
             'NAME': $(`${form} #activity-name`).val(),
+            'location': $(`${form} #location`).val(),
             'City': $(`${form} #city option:selected`).val(),
             'District': $(`${form} #district option:selected`).val(),
             'Ward': $(`${form} #ward option:selected`).val(),
@@ -164,6 +167,7 @@ function onDeviceReady() {
         $(`${form} #reporter`).text(info.REPORTER);
         $(`${form} #activity-name`).text(info.NAME);
         // fix
+        $(`${form} #location`).text(info.location);
         $(`${form} #city`).text(info.City); 
         $(`${form} #district`).text(info.District);
         $(`${form} #ward`).text(info.Ward);
@@ -245,8 +249,8 @@ function registerActivity(e) {
 
     db.transaction(function (tx) {
         //Cai nay de cho du lieu vao activity
-        var query = `INSERT INTO Activity (REPORTER, NAME, city, district, ward, date, DateOfAttending) VALUES (?,?,?,?,?,?,?)`;
-        tx.executeSql(query, [info.REPORTER, info.NAME, info.City, info.District, info.Ward, info.date, info.DateOfAttending], transactionSuccess, transactionError);
+        var query = `INSERT INTO Activity (REPORTER, NAME, location, city, district, ward, date, DateOfAttending) VALUES (?,?,?,?,?,?,?,?)`;
+        tx.executeSql(query, [info.REPORTER, info.NAME, info.location, info.City, info.District, info.Ward, info.date, info.DateOfAttending], transactionSuccess, transactionError);
 
         function transactionSuccess(tx, result) {
             log(`Create a Activity '${info.NAME}' successfully.`);
@@ -264,7 +268,7 @@ function registerActivity(e) {
 $(document).on('pagebeforeshow', '#page-list', showList);
 function showList() {
     db.transaction(function (tx) {
-        var query = 'SELECT Id, REPORTER, NAME, city, district, ward, date, DateOfAttending FROM Activity';
+        var query = 'SELECT Id, REPORTER, NAME, location, city, district, ward, date, DateOfAttending FROM Activity';
         tx.executeSql(query, [], transactionSuccess, transactionError);
         function transactionSuccess(tx, result) {
             // Logging 
@@ -305,6 +309,7 @@ function showDetail() {
             var errorMessage = 'Property not found.';
             var reporter = errorMessage;
             var activity_name = errorMessage;
+            var location = errorMessage;
             var city = errorMessage;
             var district = errorMessage;
             var ward = errorMessage;
@@ -313,6 +318,7 @@ function showDetail() {
             if (result.rows[0] != null) {
                 reporter = result.rows[0].REPORTER;
                 activity_name = result.rows[0].NAME;
+                location = result.rows[0].location;
                 city = result.rows[0].City;
                 district = result.rows[0].District;
                 ward = result.rows[0].Ward;
@@ -329,6 +335,7 @@ function showDetail() {
             $('#page-detail #Id').text(id);
             $('#page-detail #reporter').text(reporter);
             $('#page-detail #activity-name').text(activity_name);
+            $('#page-detail #location').text(location);
             $('#page-detail #city').text(city);
             $('#page-detail #district').text(district);
             $('#page-detail #ward').text(ward);
